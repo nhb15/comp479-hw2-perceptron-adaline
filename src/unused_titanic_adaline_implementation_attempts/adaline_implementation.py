@@ -2,6 +2,7 @@ import random
 import numpy as np
 import argparse
 import test_data_sets
+import math
 
 def predictALabel(weights, values, threshold):
     sum = np.dot(values, weights, out=None)
@@ -23,8 +24,10 @@ def train(learning_rate, num_passes, threshold, values):
         for index in range(num_data_points):
             prediction_for_row = predictALabel(weights, [data[index] for data in features], threshold)
             for weight_index, _ in enumerate(weights):
-                weights[weight_index] += learning_rate * (values[index][len(values[index]) - 1] - prediction_for_row) * values[index][weight_index]
-                threshold += learning_rate * (values[index][len(values[index]) - 1] - prediction_for_row)
+                errors = math.pow((values[:][len(values[index]) - 1] - prediction_for_row), 2)
+                print(errors)
+                weights[weight_index] += -learning_rate * errors
+                threshold += learning_rate * sum(errors)
     return weights, threshold
 
 def main():
@@ -39,8 +42,8 @@ def main():
     threshold = args.threshold if args.threshold else 0
 
     '''
-    LINEARLY SEPARATED DATA RUNS:
-    '''
+   LINEARLY SEPARATED DATA RUNS:
+   '''
     values = test_data_sets.linearly_separated_data
     weights, threshold = train(learning_rate, num_passes, threshold, values)
     print(f"The weights for this linearly-separable training experiment are: {weights}")
@@ -48,14 +51,5 @@ def main():
     for tuple in test_data_sets.linearly_separated_data:
         print(f"The tuple: {tuple} is predictive of label {predictALabel(weights, tuple[0:2], threshold)}")
 
-    '''
-    NON-LINEARLY SEPARATED DATA RUNS:
-    '''
-    values = test_data_sets.non_linearly_separated_data
-    weights, threshold = train(learning_rate, num_passes, threshold, values)
-    print(f"The weights for this non-linearly-separable training experiment are: {weights}")
-    print(f"The threshold for this non-linearly-separable training experiment is: {threshold}")
-    for tuple in test_data_sets.linearly_separated_data:
-        print(f"The tuple: {tuple} is predictive of label {predictALabel(weights, tuple[0:2], threshold)}")
 if __name__ == "__main__":
     main()
